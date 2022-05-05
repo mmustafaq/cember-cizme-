@@ -1,0 +1,104 @@
+
+org 100h
+mov si,0d
+
+bas:
+mov ax,si      
+mov cx,si
+mov ax,cx           ;--------------------
+mul cx              ;
+mov dx,14400d       ; dx = y sq
+sub dx,ax           ;--------------------
+                    
+                    
+                    
+mov cx,00000h       ;--------------------    
+mov bx,0ffffh       ;
+sq:                 ;
+add bx,02h          ; sq root operation
+inc cx              ;
+sub dx,bx           ;
+cmp dx,bx           ;
+jge sq              ;--------------------
+
+mov ax,cx           ;--------------------
+                    ;
+mov 01000h[si],ax    ; place into desired
+                    ; memory locations
+inc si              ;
+cmp si,121d         ;--------------------
+jne bas
+
+mov ah,0            ;adjust screen mode 720x400
+mov al,12h
+int 10h
+
+
+mov si,1h
+
+sub ax,ax           ;clear registers
+sub bx,bx           
+                    
+                    
+mov cx,360d         ;draws the center
+mov dx,130d         
+mov ah,0ch          
+mov al,07h          ;al is set to 7 to draw white pixels
+int 10h             
+                    
+a:                  
+mov cx,360d         ;re-initializing center
+mov dx,130d         ;x0 y0
+;1st region         
+add cx,si           ;x=x0+si
+add dx,1000h[si]         ;y=y0+[si]
+sub dh,dh           
+mov ah,0ch          
+mov al,07h          
+int 10h             
+                    
+;2nd region         ;x=x0+si
+mov dx,130d         ;y=y0-[si]
+sub dl,1000h[si]         
+mov ah,0ch          
+mov al,07h          
+int 10h             
+                    
+;3rd region         
+mov cx,360d         ;x=x0-si
+sub cx,si           ;y=y0-[si]
+mov ah,0ch
+mov al,07h
+int 10h
+
+mov cx,360d
+mov dx,130d
+
+;4th region
+sub cx,si           ;x=x0-si
+add dl,1000h[si]         ;y=y0+[si]
+mov ah,0ch
+mov al,07h
+int 10h
+
+
+inc si
+cmp si,121d         ;draw until si hits 121d
+
+jne a 
+
+
+
+
+mov ah,4ch    ;terminate program
+int 21h
+
+;When I first wrote this program I used 320x200 screen mode but circle exceeded the boundary 
+;and resulted image was messy.Then I used different screen mode (720x400) again I stumbled upon
+;same issue.To make this work I changed the center of the circle.So center of circle is 360,130
+;Algorithym to place pixel on 1st 2nd 3rd and 4th regions is correct.
+ret
+
+
+
+
